@@ -18,10 +18,11 @@
 
 package org.apache.zookeeper.server.quorum;
 
-
-import org.apache.zookeeper.server.quorum.Vote;
-
+// 其实现类 FastLeaderElection.java 是标准的 fast paxos 算法的实现，基于TCP协议进行选举
 public interface Election {
+    // 寻找 leader
     public Vote lookForLeader() throws InterruptedException;
+
+    // 关闭服务端之间的连接
     public void shutdown();
 }
