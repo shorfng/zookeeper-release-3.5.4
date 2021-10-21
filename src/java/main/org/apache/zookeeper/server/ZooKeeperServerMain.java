@@ -132,7 +132,7 @@ public class ZooKeeperServerMain {
             // so rather than spawning another thread, we will just call
             // run() in this thread.
             // create a file logger url from the command line args
-            //初始化日志文件
+            // 初始化日志文件，创建数据管理器
             txnLog = new FileTxnSnapLog(config.dataLogDir, config.dataDir);
 
            // 初始化zkServer对象
@@ -171,6 +171,7 @@ public class ZooKeeperServerMain {
                 // zkServer has been started. So we don't need to start it again in secureCnxnFactory.
                 needStartZKServer = false;
             }
+
             if (config.getSecureClientPortAddress() != null) {
                 secureCnxnFactory = ServerCnxnFactory.createFactory();
                 secureCnxnFactory.configure(config.getSecureClientPortAddress(), config.getMaxClientCnxns(), true);

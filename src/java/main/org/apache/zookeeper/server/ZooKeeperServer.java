@@ -425,6 +425,7 @@ public class ZooKeeperServer implements SessionExpirer, ServerStats.Provider {
             //初始化数据数据，这里会加入一些原始节点，例如/zookeeper
             zkDb = new ZKDatabase(this.txnLogFactory);
         }
+
         //加载磁盘上已经存储的数据，如果有的话
         if (!zkDb.isInitialized()) {
             loadData();
@@ -432,24 +433,25 @@ public class ZooKeeperServer implements SessionExpirer, ServerStats.Provider {
     }
 
     public synchronized void startup() {
-        //初始化session追踪器
+        // 初始化session追踪器
         if (sessionTracker == null) {
             createSessionTracker();
         }
-        //启动session追踪器
+
+        // 启动session追踪器
         startSessionTracker();
 
-        //建立请求处理链路
+        // 建立请求处理链路
         setupRequestProcessors();
 
-        //注册jmx
+        // 注册jmx
+        // jmx：java management extensions，是管理 java 的一种扩展，可以管理、监控正在运行的java程序
+        // 常用于管理线程、内存、日志level、服务重启、系统环境等
         registerJMX();
 
         setState(State.RUNNING);
         notifyAll();
     }
-
-
 
     /*  PrepRequestProcessor主要内容：对请求进行区分是否是事务请求，如果是事务请求则创建出事务请求头，
     同时执行一些检查操作，对于增删改等影响数据状态的操作都被认为是事务，需要创建出事务请求头
@@ -465,12 +467,12 @@ public class ZooKeeperServer implements SessionExpirer, ServerStats.Provider {
     SyncRequestProcessor也仅仅是把该请求记录下来保存到事务日志中。
     该请求的具体内容，如获取所有的子节点，创建node的这些具体的操作就是由FinalRequestProcessor来完成的
      */
-
     protected void setupRequestProcessors() {
         RequestProcessor finalProcessor = new FinalRequestProcessor(this);
-        RequestProcessor syncProcessor = new SyncRequestProcessor(this,
-                finalProcessor);
+
+        RequestProcessor syncProcessor = new SyncRequestProcessor(this, finalProcessor);
         ((SyncRequestProcessor)syncProcessor).start();
+
         firstProcessor = new PrepRequestProcessor(this, syncProcessor);
         ((PrepRequestProcessor)firstProcessor).start();
     }

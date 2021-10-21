@@ -179,7 +179,7 @@ public class NIOServerCnxnFactory extends ServerCnxnFactory {
         private final Collection<SelectorThread> selectorThreads;
         private Iterator<SelectorThread> selectorIterator;
         private volatile boolean reconfiguring = false;
-        
+
         public AcceptThread(ServerSocketChannel ss, InetSocketAddress addr,
                 Set<SelectorThread> selectorThreads) throws IOException {
             super("NIOServerCxnFactory.AcceptThread:" + addr);
@@ -206,13 +206,13 @@ public class NIOServerCnxnFactory extends ServerCnxnFactory {
                 closeSelector();
                 // This will wake up the selector threads, and tell the
                 // worker thread pool to begin shutdown.
-            	if (!reconfiguring) {                    
+            	if (!reconfiguring) {
                     NIOServerCnxnFactory.this.stop();
                 }
                 LOG.info("accept thread exitted run method");
             }
         }
-        
+
         public void setReconfiguring() {
         	reconfiguring = true;
         }
@@ -704,7 +704,7 @@ public class NIOServerCnxnFactory extends ServerCnxnFactory {
 
     @Override
     public void reconfigure(InetSocketAddress addr) {
-        ServerSocketChannel oldSS = ss;        
+        ServerSocketChannel oldSS = ss;
         try {
             this.ss = ServerSocketChannel.open();
             ss.socket().setReuseAddress(true);
@@ -768,8 +768,7 @@ public class NIOServerCnxnFactory extends ServerCnxnFactory {
 
     //启动分了好几块，一个一个看
     @Override
-    public void startup(ZooKeeperServer zks, boolean startServer)
-            throws IOException, InterruptedException {
+    public void startup(ZooKeeperServer zks, boolean startServer) throws IOException, InterruptedException {
         // 启动相关线程
         start();
         setZooKeeperServer(zks);
@@ -778,6 +777,7 @@ public class NIOServerCnxnFactory extends ServerCnxnFactory {
         if (startServer) {
             // 加载数据到zkDataBase
             zks.startdata();
+
             // 启动定时清除session的管理器,注册jmx,添加请求处理器
             zks.startup();
         }
