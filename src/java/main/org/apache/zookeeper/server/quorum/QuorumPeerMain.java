@@ -104,10 +104,9 @@ public class QuorumPeerMain {
         System.exit(0);
     }
 
-    protected void initializeAndRun(String[] args)
-        throws ConfigException, IOException, AdminServerException
-    {
+    protected void initializeAndRun(String[] args) throws ConfigException, IOException, AdminServerException {
         QuorumPeerConfig config = new QuorumPeerConfig();
+
         if (args.length == 1) {
             config.parse(args[0]);
         }
@@ -115,8 +114,7 @@ public class QuorumPeerMain {
         // 历史文件清理器
         // Start and schedule the the purge task
         DatadirCleanupManager purgeMgr = new DatadirCleanupManager(config
-                .getDataDir(), config.getDataLogDir(), config
-                .getSnapRetainCount(), config.getPurgeInterval());
+                .getDataDir(), config.getDataLogDir(), config.getSnapRetainCount(), config.getPurgeInterval());
         purgeMgr.start();
 
         // 当配置了多节点信息，config.isDistributed()=true
@@ -124,17 +122,14 @@ public class QuorumPeerMain {
             // 集群模式
             runFromConfig(config);
         } else {
-            LOG.warn("Either no config or no quorum defined in config, running "
-                    + " in standalone mode");
+            LOG.warn("Either no config or no quorum defined in config, running " + " in standalone mode");
             // there is only server in the quorum -- run as standalone
             // 单机模式
             ZooKeeperServerMain.main(args);
         }
     }
 
-    public void runFromConfig(QuorumPeerConfig config)
-            throws IOException, AdminServerException
-    {
+    public void runFromConfig(QuorumPeerConfig config) throws IOException, AdminServerException {
       try {
           // 注册jmx
           ManagedUtil.registerLog4jMBeans();
@@ -150,28 +145,21 @@ public class QuorumPeerMain {
           if (config.getClientPortAddress() != null) {
               cnxnFactory = ServerCnxnFactory.createFactory();
               // 配置客户端连接端口
-              cnxnFactory.configure(config.getClientPortAddress(),
-                      config.getMaxClientCnxns(),
-                      false);
+              cnxnFactory.configure(config.getClientPortAddress(), config.getMaxClientCnxns(), false);
           }
 
           if (config.getSecureClientPortAddress() != null) {
               secureCnxnFactory = ServerCnxnFactory.createFactory();
               // 配置安全连接端口
-              secureCnxnFactory.configure(config.getSecureClientPortAddress(),
-                      config.getMaxClientCnxns(),
-                      true);
+              secureCnxnFactory.configure(config.getSecureClientPortAddress(), config.getMaxClientCnxns(), true);
           }
 
           // ------------初始化当前zk服务节点的配置----------------
           // 设置数据和快照操作
           quorumPeer = getQuorumPeer();
-          quorumPeer.setTxnFactory(new FileTxnSnapLog(
-                      config.getDataLogDir(),
-                      config.getDataDir()));
+          quorumPeer.setTxnFactory(new FileTxnSnapLog(config.getDataLogDir(), config.getDataDir()));
           quorumPeer.enableLocalSessions(config.areLocalSessionsEnabled());
-          quorumPeer.enableLocalSessionsUpgrading(
-              config.isLocalSessionsUpgradingEnabled());
+          quorumPeer.enableLocalSessionsUpgrading(config.isLocalSessionsUpgradingEnabled());
           //quorumPeer.setQuorumPeers(config.getAllMembers());
           // 选举类型
           quorumPeer.setElectionType(config.getElectionAlg());
@@ -184,7 +172,7 @@ public class QuorumPeerMain {
           quorumPeer.setSyncLimit(config.getSyncLimit());
           quorumPeer.setConfigFileName(config.getConfigFilename());
 
-          // 设置zk的节点数据库
+          // 设置zk的节点数据库：管理 zk 的所有会话记录以及 DataTree 和事务日志的存储
           quorumPeer.setZKDatabase(new ZKDatabase(quorumPeer.getTxnFactory()));
           quorumPeer.setQuorumVerifier(config.getQuorumVerifier(), false);
           if (config.getLastSeenQuorumVerifier()!=null) {
@@ -210,10 +198,10 @@ public class QuorumPeerMain {
           }
           quorumPeer.setQuorumCnxnThreadsSize(config.quorumCnxnThreadsSize);
 
-          // -------------初始化当前zk服务节点的配置---------------
+          // 初始化当前zk服务节点的配置---------------
           quorumPeer.initialize();
 
-          //重点
+          // 重点
           quorumPeer.start();
           quorumPeer.join();
       } catch (InterruptedException e) {
